@@ -1,10 +1,8 @@
+
 const { MongoClient } = require("mongodb");
 
 const URI = "mongodb://localhost:27017";
 const client = new MongoClient(URI);
-
-// You will understand this boilerplate in session 6.
-// For now, your job is to fill in the seven TODOs below.
 
 async function main() {
   await client.connect();
@@ -12,23 +10,87 @@ async function main() {
 
   await users.deleteMany({});
 
-  // TODO 1: insert a user with an embedded address object.
-  // The address must have at least a city and a country field.
+  // TODO 1: Insert a user with an embedded address object.
+  await users.insertOne({
+    name: "Alice",
+    email: "alice@example.com",
+    address: {
+      city: "Paris",
+      country: "France"
+    }
+  });
 
-  // TODO 2: insert a user with a skills array containing at least 3 items.
+  // TODO 2: Insert a user with a skills array containing at least 3 items.
+  await users.insertOne({
+    name: "Bob",
+    email: "bob@example.com",
+    skills: ["JavaScript", "Python", "MongoDB"]
+  });
 
-  // TODO 3: use insertMany to insert at least 5 users in a single call.
-  // Requirements:
-  //   - At least 2 users must have address.country set to "France"
-  //   - At least 2 users must have a skills array with at least 1 item
+  // TODO 3: Insert at least 5 users in a single call.
+  await users.insertMany([
+    {
+      name: "Claire",
+      email: "claire@example.com",
+      address: { city: "Lyon", country: "France" },
+      skills: ["Java", "SQL"]
+    },
+    {
+      name: "David",
+      email: "david@example.com",
+      address: { city: "London", country: "UK" },
+      skills: ["Python"]
+    },
+    {
+      name: "Emma",
+      email: "emma@example.com",
+      address: { city: "Bordeaux", country: "France" }
+    },
+    {
+      name: "Frank",
+      email: "frank@example.com",
+      address: { city: "Berlin", country: "Germany" }
+    },
+    {
+      name: "Grace",
+      email: "grace@example.com",
+      skills: ["C++", "React", "Node.js"]
+    }
+  ]);
 
-  // TODO 4: retrieve all documents and log each user's name.
+  // TODO 4: Retrieve all documents and log each user's name.
+  const allUsers = await users.find().toArray();
 
-  // TODO 5: use dot notation to find the user whose address.city is "Paris" and log the result.
+  allUsers.forEach(user => {
+    console.log(user.name);
+  });
 
-  // TODO 6: find all users whose address.country is "France" and log their names.
+  // TODO 5: Find the user whose address.city is "Paris".
+  const parisUser = await users.findOne({
+    "address.city": "Paris"
+  });
 
-  // TODO 7: find all users who have a skills field and log their names.
+  console.log("User from Paris:", parisUser);
+
+  // TODO 6: Find all users whose address.country is "France".
+  const frenchUsers = await users.find({
+    "address.country": "France"
+  }).toArray();
+
+  console.log("Users from France:");
+  frenchUsers.forEach(user => {
+    console.log(user.name);
+  });
+
+  // TODO 7: Find all users who have a skills field.
+  const usersWithSkills = await users.find({
+    skills: { $exists: true }
+  }).toArray();
+
+  console.log("Users with skills:");
+  usersWithSkills.forEach(user => {
+    console.log(user.name);
+  });
 
   await client.close();
 }
