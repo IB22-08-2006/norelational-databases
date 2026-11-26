@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 const User = require("./models/user");
 const Post = require("./models/post");
@@ -11,23 +12,25 @@ const URI = process.env.MONGODB_URI || "mongodb://localhost:27017/blog_db";
 async function main() {
   await mongoose.connect(URI);
 
-  // TODO: delete all existing documents from the users collection
-  // Hint: User.deleteMany({})
+  // Delete existing documents
+  await User.deleteMany({});
+  await Post.deleteMany({});
 
-  // TODO: delete all existing documents from the posts collection
+  // Insert users
+  const users = await User.insertMany(usersData);
 
-  // TODO: insert all users from usersData into the database
-  // Hint: User.insertMany(usersData)
+  // Insert posts
+  const posts = await Post.insertMany(postsData);
 
-  // TODO: insert all posts from postsData into the database
-
-  // TODO: log how many users and posts were inserted
-  // Hint: User.countDocuments() returns the total count
+  // Log inserted counts
+  console.log(`Inserted ${users.length} users.`);
+  console.log(`Inserted ${posts.length} posts.`);
 
   await mongoose.disconnect();
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
   console.error(err);
+  await mongoose.disconnect();
   process.exit(1);
 });
